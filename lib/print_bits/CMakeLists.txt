@@ -11,9 +11,6 @@ foreach(my_lib IN LISTS my_libs)
     add_library("${my_lib}" SHARED "${my_lib}.c")
     target_include_directories("${my_lib}" PUBLIC ".")
     target_compile_options(${my_lib} PUBLIC -g -Wall)
-    # target_link_libraries(${my_lib} PUBLIC
-    #     m
-    # )    
 endforeach()
 
 add_subdirectory(tests)
