@@ -24,6 +24,6 @@ You should have received a copy of the GNU General Public License along with
 check how app pass as 1st arg react to diffrent signals
 */
 
-int main(int argc, char** argv) {   
+int main(int argc, char** argv) {
     return 0;
 }
