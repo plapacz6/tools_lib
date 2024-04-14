@@ -19,11 +19,16 @@ You should have received a copy of the GNU General Public License along with
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include "parse_args.h"
 
 /*
 check how app pass as 1st arg react to diffrent signals
 */
 
 int main(int argc, char** argv) {
-    return 0;
+    application_test_conditions_T atc;
+    construct_application_test_conditions_T(&atc);
+    int ret = parse_args(argc, argv, &atc);
+    destruct_application_test_conditions_T(&atc);
+    return ret;
 }

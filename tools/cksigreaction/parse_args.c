@@ -51,6 +51,32 @@ void delete_signal_description_T(signal_description_T** sd_ptr) {
     }
 }
 
+void construct_application_test_conditions_T(
+    application_test_conditions_T* atc_ptr) {
+    atc_ptr->app_name = NULL;
+    atc_ptr->app_args = NULL;
+    atc_ptr->signals_number = 0;
+    atc_ptr->signals = NULL;
+}
+void destruct_application_test_conditions_T(application_test_conditions_T *atc_ptr) {
+    if(atc_ptr->app_name) {
+        free(atc_ptr->app_name);
+        atc_ptr->app_name = NULL;
+    }
+    if(atc_ptr->app_args) {
+        free(atc_ptr->app_args);
+        atc_ptr->app_args = NULL;
+    }
+    if(atc_ptr->signals) {
+        for(size_t i = 0; i < atc_ptr->signals_number; ++i) {
+            delete_signal_description_T(&atc_ptr->signals[i]);
+        }
+        free(atc_ptr->signals);
+        atc_ptr->signals = NULL;
+    }
+    atc_ptr->signals_number = 0;
+}
+
 extern char *optarg;
 extern int optind, opterr, optopt;
 

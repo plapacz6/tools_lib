@@ -48,21 +48,12 @@ protected:
 public:
 
     test_f_parse_args() {
-        // argc = 0;
-        // argv = nullptr;
-        // atc.app_name = nullptr;
-        // atc.app_args = nullptr;
-        // atc.signals = nullptr;
-        // atc.signals_number = 0;
     }
 
     void SetUp() override {
         argc = 0;
         argv = nullptr;
-        atc.app_name = nullptr;
-        atc.app_args = nullptr;
-        atc.signals = nullptr;
-        atc.signals_number = 0;
+        construct_application_test_conditions_T(&atc);
     }
 
     void SetUpArgv(int argc, ...) {
@@ -87,24 +78,8 @@ public:
             argv = nullptr;
             argc = 0;
         }
-        if(atc.app_name) {
-            delete atc.app_name;
-            atc.app_name = nullptr;
-        }
-        if(atc.app_args) {
-            delete atc.app_args;
-            atc.app_args = nullptr;
-        }
-        if(atc.signals) {
-            for(size_t i = 0; i < (size_t)atc.signals_number; ++i) {
-                if(atc.signals[i]) {
-                    delete_signal_description_T(&atc.signals[i]);
-                }
-            }
-            delete atc.signals;
-            atc.signals = nullptr;
-            atc.signals_number = 0;
-        }
+        destruct_application_test_conditions_T(&atc);
+
         // optind = 0;  //reset getopt()  //parse_args must do this
     }
 };

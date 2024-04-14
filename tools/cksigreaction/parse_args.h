@@ -21,6 +21,7 @@ You should have received a copy of the GNU Lesser General Public License along
 extern "C"
 {
 #endif
+#include <stdlib.h>
 
 typedef struct signal_description_T {
     char *name;
@@ -35,6 +36,10 @@ typedef struct application_test_conditions_T {
     int signals_number;
     signal_description_T **signals;
 } application_test_conditions_T;
+void construct_application_test_conditions_T(
+    application_test_conditions_T* atc_ptr);
+void destruct_application_test_conditions_T(
+    application_test_conditions_T *atc_ptr);
 
 int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr);
 

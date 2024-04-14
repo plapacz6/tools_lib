@@ -41,9 +41,10 @@ list(APPEND my_executables
 foreach(my_executable IN LISTS my_executables)
 add_executable("${my_executable}" "${my_executable}.c")
     target_include_directories("${my_executable}" PRIVATE ".")
-    target_compile_options(${my_executable} PRIVATE -g -Wall)
-    # target_link_libraries(${my_executable} PRIVATE
-    #     m
-    # )    
+    target_compile_options(${my_executable} PRIVATE -g -Wall -pthread)
+    target_link_libraries(${my_executable} PRIVATE
+        "${my_libs}"
+        pthread
+    )    
 endforeach()
 
