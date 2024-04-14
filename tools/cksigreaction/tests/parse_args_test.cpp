@@ -16,9 +16,163 @@ You should have received a copy of the GNU Lesser General Public License along
  with cksigreaction. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
+#include <string>
+#include <cstdarg>
+
 #include "gtest/gtest.h"
 #include "../parse_args.h"
 
-TEST(parse_args, empty_args_list) {
-    ASSERT_EQ(1, 1);
+using namespace std; 
+using namespace testing;
+
+TEST(signals_description, konstruct_destruct) {
+    signal_description_T *sd = construct_signal_description_T(
+        const_cast<char*>("sIG9"), 9
+    );
+    ASSERT_STREQ(sd->name, "sIG9");
+    ASSERT_EQ(sd->val, 9);
+    destruct_signal_description_T(&sd);
+    ASSERT_EQ(sd, nullptr);    
+    destruct_signal_description_T(&sd);
+    ASSERT_EQ(sd, nullptr);
 }
+
+class test_f_parse_args : public testing::Test {
+    protected:
+    
+    struct application_test_conditions_T atc;
+    int argc;
+    char **argv;
+
+    public:
+
+    test_f_parse_args(){
+        argc = 0;
+        argv = nullptr;
+        atc.app_name = nullptr;
+        atc.app_args = nullptr;
+        atc.signals = nullptr;
+        atc.signals_number = 0;
+    }
+
+    void SetUp() override {        
+    }
+
+    void SetUpArgv(int argc, ...) {
+        this->argc = argc;
+                argv = new char*[argc];
+        if(!argv) {
+            cerr << "new" << endl;
+            exit(1);
+        }
+
+        va_list va;
+        va_start(va, argc);
+        for(size_t i = 0; i < (size_t)argc; ++i) {
+            argv[i] = va_arg(va, char*);
+        }
+        va_end(va);
+    }
+
+    void TearDown() override {
+        if(argv) {
+            delete argv;
+            argv = nullptr;            
+            argc = 0;
+        }        
+        if(atc.signals) {
+            delete atc.signals;
+            atc.signals = nullptr;
+            atc.signals_number = 0;
+        }
+        if(atc.app_args) {
+            delete atc.app_args;
+            atc.app_args = nullptr;
+        }
+        if(atc.app_name) {
+            delete atc.app_name;
+            atc.app_name = nullptr;
+        }
+    }
+};
+
+TEST_F(test_f_parse_args, SetUpArgv) {
+    SetUpArgv(4, 
+        "this_program", 
+        "--app=app_name", 
+        "--sig=SIGALRM:SIGINTR",
+        "--args=-ax *"
+    );
+    ASSERT_EQ(argc, 4);
+    ASSERT_EQ(argv[0], "this_program");
+    ASSERT_EQ(argv[1], "--app=app_name");    
+    ASSERT_EQ(argv[2], "--sig=SIGALRM:SIGINTR");
+    ASSERT_EQ(argv[3], "--args=-ax *");
+
+    ASSERT_EQ(atc.app_name, nullptr);
+    ASSERT_EQ(atc.app_args, nullptr);
+    ASSERT_EQ(atc.signals, nullptr);
+    ASSERT_EQ(atc.signals_number, 0);    
+}
+
+TEST_F(test_f_parse_args, usage__empty_args_list) {
+    SetUpArgv(1, 
+        "this_program"
+    );
+    int ret = parse_args(argc, argv, &atc);
+    ASSERT_EQ(0, ret);
+    ASSERT_EQ(argv[0], "this_program");   
+
+    ASSERT_EQ(atc.app_name, nullptr);
+    ASSERT_EQ(atc.app_args, nullptr);
+    ASSERT_EQ(atc.signals, nullptr);
+    ASSERT_EQ(atc.signals_number, 0);
+}
+
+TEST_F(test_f_parse_args, correct__only_app_name) {
+    SetUpArgv(2, 
+        "this_program", 
+        "--app=app_name"
+    );
+    int ret = parse_args(argc, argv, &atc);
+    ASSERT_EQ(0, ret);    
+
+    ASSERT_EQ(atc.app_name, "app_name");  //<< TODO: write funciton body
+    ASSERT_EQ(atc.app_args, nullptr);
+    ASSERT_EQ(atc.signals, nullptr);
+    ASSERT_EQ(atc.signals_number, 0);
+}
+
+TEST_F(test_f_parse_args, correct__app_name_and_sigs) {
+    SetUpArgv(3, 
+        "this_program", 
+        "--app=app_name", 
+        "--sig=SIGALRM:SIGINTR"
+    );
+    int ret = parse_args(argc, argv, &atc);
+    ASSERT_EQ(0, ret);
+
+    ASSERT_EQ(atc.app_name, "app_name");
+    ASSERT_EQ(atc.app_args, nullptr);
+    ASSERT_NE(atc.signals, nullptr);
+    ASSERT_NE(atc.signals_number, 0);    
+}
+
+TEST_F(test_f_parse_args, correct__app_name_sigs_and_app_args) {
+    SetUpArgv(4, 
+        "this_program", 
+        "--app=app_name", 
+        "--sig=SIGALRM:SIGINTR"
+        "--args=-ax *"
+    );
+    int ret = parse_args(argc, argv, &atc);
+    ASSERT_EQ(0, ret);
+
+    ASSERT_EQ(atc.app_name, "app_name");
+    ASSERT_EQ(atc.app_args, "-ax *");
+    ASSERT_NE(atc.signals, nullptr);
+    ASSERT_NE(atc.signals_number, 0);    
+}
+
+

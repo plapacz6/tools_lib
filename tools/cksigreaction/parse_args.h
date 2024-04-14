@@ -22,7 +22,21 @@ extern "C"
 {
 #endif
 
-int parse_args(int argc, char** argv, int** signals_type, int* signals_number);
+typedef struct signal_description_T {
+    char *name;
+    int val;
+} signal_description_T;
+signal_description_T* construct_signal_description_T(char *name, int val);
+void destruct_signal_description_T(signal_description_T** sd_ptr);
+
+typedef struct application_test_conditions_T {
+    char *app_name;
+    char *app_args;
+    int signals_number;
+    signal_description_T *signals;          
+} application_test_conditions_T;
+
+int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr);
 
 #ifdef __cplusplus
 }
