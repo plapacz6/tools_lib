@@ -23,6 +23,7 @@ You should have received a copy of the GNU Lesser General Public License along
 #include <stdio.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <stdbool.h>
 
 signal_description_T* new_signal_description_T(char *name, int val) {
     struct signal_description_T* sd = calloc(1, sizeof(signal_description_T));
@@ -65,7 +66,8 @@ int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr) {
     };
     int longindex;
     int c;
-    while(1) {
+    bool important_option_already_readed = false;
+    while(!important_option_already_readed) {
         c = getopt_long(argc, argv,
                         "",
                         longopts, &longindex
@@ -82,8 +84,27 @@ int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr) {
             break;
         case 'a':
             size_t appargs_length = strlen(optarg);
+
+            //calculate all args length (+ 1 space before each)
+            int curr_arg_idx = optind;
+            while(curr_arg_idx < argc) {
+                appargs_length += 1 + strlen(argv[curr_arg_idx]);
+                ++curr_arg_idx;
+            }
+            //allocate place for all args (separated by 1 space)
             atc_ptr->app_args = calloc(appargs_length + 1, sizeof(char));
-            strncpy(atc_ptr->app_args, optarg, appargs_length);
+            if(!atc_ptr->app_args) {
+                exit(1);
+            }
+            curr_arg_idx = optind;
+            strcpy(atc_ptr->app_args, optarg); //argv[curr_arg_idx]);
+            while(curr_arg_idx < argc) {
+                strcat(atc_ptr->app_args, " ");
+                strcat(atc_ptr->app_args, argv[curr_arg_idx]);
+                ++curr_arg_idx;
+            };
+
+            important_option_already_readed = true;
             break;
         case 's':
             size_t signals_list_length = strlen(optarg);
@@ -131,7 +152,8 @@ int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr) {
             signals_list = NULL;
             break;
         default:
-            //some app args
+            break;
+            //some unknown arguemnts or in wrong orders (app args have to be at the very end)
         }
     }
     if(
@@ -144,9 +166,6 @@ int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr) {
         printf("usage:\n%s %s\n",
                argv[0], " --app=name --sigs=SIG1:SIG2:SIG3 [--appargs=-op args]");
         return -1;
-    }
-    if(optind < argc) {
-
     }
     return 0;
 }
