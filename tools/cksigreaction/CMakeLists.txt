@@ -1,30 +1,43 @@
-# Copyright 2024-2024 plapacz6@gmail.com
+#[[
+Copyright 2024-2024 plapacz6@gmail.com
 
-# This file is part of cksigreaction.
+This file is part of cksigreaction.
 
-# cksigreaction is free software: you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
+cksigreaction is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
 
-# cksigreaction is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+cksigreaction is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-# You should have received a copy of the GNU Lesser General Public License along
-#  with cksigreaction. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public License along
+ with cksigreaction. If not, see <https://www.gnu.org/licenses/>.
+#]]
 
 cmake_minimum_required(VERSION 3.19)
 project(struct_01 VERSION 0.0.1)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+find_path(signal_str2int_INCLUDE signal_str2int.h
+    HINTS ../../lib
+    PATH_SUFFIXES signal_str2int
+)
+find_library(signal_str2int_LIBRARY signal_str2int 
+    NAMES signal_str2int
+    HINTS ../../lib
+    PATH_SUFFIXES signal_str2int signal_str2int/build
+)
+message("signal_str2int_INCLUDE ${signal_str2int_INCLUDE}")
+message("signal_str2int_LIBRARY ${signal_str2int_LIBRARY}")
 
 list(APPEND my_libs    
     parse_args        
 )
 foreach(my_lib IN LISTS my_libs)
-    add_library("${my_lib}" SHARED "${my_lib}.c")
+    add_library("${my_lib}" STATIC "${my_lib}.c")
     target_include_directories("${my_lib}" PUBLIC ".")
     target_compile_options(${my_lib} PUBLIC -g -Wall)
     # target_link_libraries(${my_lib} PUBLIC
@@ -32,7 +45,16 @@ foreach(my_lib IN LISTS my_libs)
     # )    
 endforeach()
 
+# parse_args
+target_include_directories(parse_args PUBLIC ${signal_str2int_INCLUDE})
+target_link_libraries(parse_args PUBLIC ${signal_str2int_LIBRARY})
+
+
+
+
 add_subdirectory(tests)
+
+
 
 list(APPEND my_executables
     cksigreaction
@@ -40,10 +62,14 @@ list(APPEND my_executables
 )
 foreach(my_executable IN LISTS my_executables)
 add_executable("${my_executable}" "${my_executable}.c")
-    target_include_directories("${my_executable}" PRIVATE ".")
-    target_compile_options(${my_executable} PRIVATE -g -Wall -pthread)
-    target_link_libraries(${my_executable} PRIVATE
-        "${my_libs}"
+    target_include_directories("${my_executable}" PRIVATE 
+        "."
+        ${signal_str2int_INCLUDE}
+    )
+    target_compile_options("${my_executable}" PRIVATE -g -Wall -pthread)
+    target_link_libraries("${my_executable}" PRIVATE
+        "${my_libs}"        
+        # ${signal_str2int_LIBRARY}
         pthread
     )    
 endforeach()

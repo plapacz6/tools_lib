@@ -22,11 +22,12 @@ You should have received a copy of the GNU Lesser General Public License along
 
 #include "gtest/gtest.h"
 #include "../parse_args.h"
+#include <signal_str2int.h>
 
 using namespace std;
 using namespace testing;
 
-TEST(signals_description, konstruct_destruct) {
+TEST(signals_description, new_delete) {
     signal_description_T *sd = new_signal_description_T(
                                    const_cast<char*>("sIG9"), 9
                                );
@@ -36,6 +37,11 @@ TEST(signals_description, konstruct_destruct) {
     ASSERT_EQ(sd, nullptr);
     delete_signal_description_T(&sd);
     ASSERT_EQ(sd, nullptr);
+}
+
+TEST(application_test_conditions, construct_destruct) {
+    // TearDown() make use from destuctor, and ??? testing this separately ?
+    ASSERT_EQ(1, 0);
 }
 
 class test_f_parse_args : public testing::Test {
@@ -232,4 +238,26 @@ TEST_F(test_f_parse_args, usage__app_name_0_sigs_and_app_4_args) {
     ASSERT_STREQ(atc.app_args, "-ax * -o N");
     ASSERT_EQ(atc.signals, nullptr);
     ASSERT_EQ(atc.signals_number, 0);
+}
+
+TEST_F(test_f_parse_args, correct__app_name_2_sigs_and_app_4_args_sigs_val) {
+    SetUpArgv(7,
+              "this_program",
+              "--app=app_name",
+              "--sigs=SIGALRM:SIGINTR",
+              "--appargs=-ax",
+              "*",
+              "-o",
+              "N"
+             );
+    int ret = parse_args(argc, argv, &atc);
+    ASSERT_EQ(0, ret);
+
+    ASSERT_STREQ(atc.app_name, "app_name");
+    ASSERT_STREQ(atc.app_args, "-ax * -o N");
+    ASSERT_STREQ(atc.signals[0]->name, "SIGALRM");
+    ASSERT_STREQ(atc.signals[1]->name, "SIGINTR");
+    ASSERT_EQ(atc.signals[0]->val, signal_str2int("SIGALRM"));
+    ASSERT_EQ(atc.signals[1]->val, signal_str2int("SIGINTR"));
+    ASSERT_EQ(atc.signals_number, 2);
 }

@@ -17,6 +17,8 @@ You should have received a copy of the GNU Lesser General Public License along
 */
 
 #include "parse_args.h"
+#include <signal_str2int.h>
+
 #include <stdlib.h>
 #define _GNU_SOURCE
 #include <string.h>
@@ -123,7 +125,7 @@ int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr) {
                 exit(1);
             }
             curr_arg_idx = optind;
-            strcpy(atc_ptr->app_args, optarg); //argv[curr_arg_idx]);
+            strcpy(atc_ptr->app_args, optarg);
             while(curr_arg_idx < argc) {
                 strcat(atc_ptr->app_args, " ");
                 strcat(atc_ptr->app_args, argv[curr_arg_idx]);
@@ -139,7 +141,7 @@ int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr) {
                 exit(1);
             }
             strncpy(signals_list, optarg, signals_list_length);
-            fprintf(stdout, "%s\n", signals_list);
+            // fprintf(stdout, "%s\n", signals_list);
 
             //counting numer of signals
             char* colon = signals_list;
@@ -167,7 +169,10 @@ int parse_args(int argc, char** argv, application_test_conditions_T *atc_ptr) {
                 if(colon) {
                     *colon = '\0';
                 }
-                atc_ptr->signals[i] = new_signal_description_T(sig_begin, 9);
+
+                //TODO: SIG VAL
+                int val = signal_str2int(sig_begin);
+                atc_ptr->signals[i] = new_signal_description_T(sig_begin, val);
                 printf("%s  %d\n", atc_ptr->signals[i]->name, atc_ptr->signals[i]->val);
                 if(colon) {
                     colon++;
