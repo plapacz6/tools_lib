@@ -1,20 +1,20 @@
 /*
 Copyright 2024-2024 plapacz6@gmail.com
 
-This file is part of signal_str2int.
+This file is part of info_linux_signal.
 
-signal_str2int is free software: you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your option) any
-later version.
+info_linux_signal is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your option)
+any later version.
 
-signal_str2int is distributed in the hope that it will be useful, but WITHOUT
+info_linux_signal is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 details.
 
 You should have received a copy of the GNU Lesser General Public License along
- with signal_str2int. If not, see <https://www.gnu.org/licenses/>.
+ with info_linux_signal. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <signal.h>
@@ -80,7 +80,7 @@ PAIR_SIGNAL_NAME_VAL(SIGWINCH)
 #include <cstdarg>
 
 #include "gtest/gtest.h"
-#include "../signal_str2int.h"
+#include "info_linux_signal/info_linux_signal.h"
 
 TEST(signal_str2int, check_all_posix_signal) {
     size_t i = 0;

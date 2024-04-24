@@ -1,1 +1,0 @@
-checks how app pass as 1st arg react to diffrent signals
